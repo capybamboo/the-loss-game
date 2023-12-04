@@ -13,7 +13,8 @@ public class PlayerBehaviour : MonoBehaviour
     [Space]
     private Transform Hand;
     [SerializeField] private ConsumableObject handItem;
-    [SerializeField] private ConsumableObject lookItem;
+    [SerializeField] private GameObject lookObject;
+    private bool lookObjectIsConsume;
 
     void Start()
     {
@@ -25,6 +26,8 @@ public class PlayerBehaviour : MonoBehaviour
         LookLogic();
         TryPickUp();
         TryThrow();
+        TryInteract();
+        TryDoAction();
     }
 
     private void LookLogic()
@@ -36,32 +39,79 @@ public class PlayerBehaviour : MonoBehaviour
             if (hit.collider.gameObject.GetComponent<ConsumableObject>())
             {
                 ConsumableObject cob = hit.collider.gameObject.GetComponent<ConsumableObject>();
-                lookItem = cob;
+
+                lookObject = cob.gameObject;
+                lookObjectIsConsume = true;
 
                 string cobName = GameManager.GetConsumeName(cob.GetConsumInfo());
 
                 uic.SetLookItemInfo(cobName);
-                if (!handItem) uic.SetPickupHintVisibility(true);
+                if (!handItem) uic.SetInteractHintVisibility(true);
+                else uic.SetInteractHintVisibility(false);
+            }
+
+            else if (hit.collider.gameObject.GetComponent<InteractableObject>())
+            {
+                InteractableObject itob = hit.collider.gameObject.GetComponent<InteractableObject>();
+
+                lookObject = itob.gameObject;
+                lookObjectIsConsume = false;
+
+                uic.SetLookItemInfo("Спаунер");
+                uic.SetInteractHintVisibility(true);
+                uic.SetActionHintVisibility(true);
             }
         }
 
         else
         {
-            lookItem = null;
+            lookObject = null;
             uic.SetLookItemInfo("");
-            uic.SetPickupHintVisibility(false);
+            uic.SetInteractHintVisibility(false);
+            uic.SetActionHintVisibility(false);
+        }
+    }
+
+    private void TryInteract()
+    {
+        if (lookObject && !lookObjectIsConsume && Input.GetKeyDown(KeyCode.F))
+        {
+            InteractableObject itob;
+
+            if (lookObject.GetComponent<Spawner>())
+            {
+                itob = lookObject.GetComponent<Spawner>();
+
+                itob.Interact();
+            }
+        }
+    }
+
+    private void TryDoAction()
+    {
+        if (lookObject && !lookObjectIsConsume && Input.GetKeyDown(KeyCode.E))
+        {
+            InteractableObject itob;
+
+            if (lookObject.GetComponent<Spawner>())
+            {
+                itob = lookObject.GetComponent<Spawner>();
+
+                itob.DoAction();
+            }
         }
     }
 
     private void TryPickUp()
     {
-        if (lookItem && !handItem && Input.GetKeyDown(KeyCode.E))
+        if (lookObject && lookObjectIsConsume && !handItem && Input.GetKeyDown(KeyCode.E))
         {
-            handItem = lookItem;
+            handItem = lookObject.GetComponent<ConsumableObject>();
 
-            handItem.SwitchGravity(false);
+            handItem.SwitchKinematic(false);
             handItem.transform.SetParent(Hand);
             handItem.transform.localPosition = Vector3.zero;
+            handItem.transform.localRotation = Quaternion.identity;
 
             string cobName = GameManager.GetConsumeName(handItem.GetConsumInfo());
 
@@ -75,7 +125,7 @@ public class PlayerBehaviour : MonoBehaviour
         if (handItem && Input.GetKeyDown(KeyCode.Q))
         {
             handItem.transform.SetParent(null);
-            handItem.SwitchGravity(true);
+            handItem.SwitchKinematic(true);
 
             handItem = null;
 

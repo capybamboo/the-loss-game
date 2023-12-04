@@ -19,9 +19,10 @@ public class ConsumableObject : MonoBehaviour
         return new KeyValuePair<ConsumType, int>(consumType, consumLevel);
     }
 
-    public void SwitchGravity(bool state)
+    public void SwitchKinematic(bool state)
     {
         rb.useGravity = state;
+        rb.isKinematic = !state;
     }
 }
 

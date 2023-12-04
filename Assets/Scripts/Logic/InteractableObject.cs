@@ -4,10 +4,20 @@ using UnityEngine;
 
 public class InteractableObject : MonoBehaviour
 {
-    [SerializeField] private int operationsLimit;
-    private int operationsLeft;
+    [SerializeField] protected int operationsLimit;
+    [SerializeField] protected int operationsLeft;
 
-    private void ShowInfo()
+    public virtual void ShowInfo()
+    {
+
+    }
+
+    public virtual void Interact()
+    {
+
+    }
+
+    public virtual void DoAction()
     {
 
     }
