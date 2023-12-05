@@ -69,9 +69,9 @@ public class PauseMenu : MonoBehaviour
         {
             if (_inventory.activeSelf)
             {
-                if (_inventory.GetComponent<Inventory>().background.activeSelf && _player.GetComponent<PlayerMovement>().blockMovement && _inventory.GetComponent<Inventory>().currentID == -1)
+                if (_inventory.GetComponent<Inventory>().background.activeSelf && _player.GetComponent<PlayerMovement>().GetMovementStatus() && _inventory.GetComponent<Inventory>().currentID == -1)
                 {
-                    _player.GetComponent<PlayerMovement>().blockMovement = false;
+                    _player.GetComponent<PlayerMovement>().LockMovement();
                     UnityEngine.Cursor.lockState = CursorLockMode.Locked;
                     UnityEngine.Cursor.visible = false;
 
@@ -104,7 +104,7 @@ public class PauseMenu : MonoBehaviour
     #region Main Menu
     public void Resume()
     {
-        _player.GetComponent<PlayerMovement>().blockMovement = false;
+        _player.GetComponent<PlayerMovement>().UnlockMovement();
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         UnityEngine.Cursor.visible = false;
@@ -124,7 +124,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Pause()
     {
-        _player.GetComponent<PlayerMovement>().blockMovement = true;
+        _player.GetComponent<PlayerMovement>().LockMovement();
 
         UnityEngine.Cursor.lockState = CursorLockMode.Confined;
         UnityEngine.Cursor.visible = true;

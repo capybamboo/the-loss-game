@@ -56,17 +56,17 @@ public class Inventory : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (!background.activeSelf && _player.GetComponent<PlayerMovement>().blockMovement)
+            if (!background.activeSelf && _player.GetComponent<PlayerMovement>().GetMovementStatus())
             {
-                _player.GetComponent<PlayerMovement>().blockMovement = false;
+                _player.GetComponent<PlayerMovement>().UnlockMovement();
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
 
                 background.SetActive(true);
             }
-            else if (background.activeSelf && !_player.GetComponent<PlayerMovement>().blockMovement && currentID == -1)
+            else if (background.activeSelf && !_player.GetComponent<PlayerMovement>().GetMovementStatus() && currentID == -1)
             {
-                _player.GetComponent<PlayerMovement>().blockMovement = true;
+                _player.GetComponent<PlayerMovement>().LockMovement();
 
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;

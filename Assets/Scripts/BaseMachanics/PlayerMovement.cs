@@ -9,7 +9,6 @@ public class PlayerMovement : MonoBehaviour
 
     [Space]
     [SerializeField] private float gravity = 9.81f;
-    [SerializeField] public bool blockMovement = false;
 
     [Space]
     [SerializeField] private Transform groundCheck;
@@ -22,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
 
     public float speed;
+
+    private bool blockMovement;
 
     private void Start()
     {
@@ -45,7 +46,10 @@ public class PlayerMovement : MonoBehaviour
         blockMovement = false;
         ml.blockCam = false;
     }
-
+    public bool GetMovementStatus()
+    {
+	return blockMovement;
+    }
     private void DoMovement()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
