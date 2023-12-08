@@ -17,7 +17,7 @@ public class Spawner : InteractableObject
     private void Start()
     {
         spawnPoint = transform.Find("spawn point");
-        operationsLeft = operationsLimit;
+        SomeStart();
     }
 
     public override void DoAction()

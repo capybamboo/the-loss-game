@@ -7,11 +7,6 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] protected int operationsLimit;
     [SerializeField] protected int operationsLeft;
 
-    public virtual void ShowInfo()
-    {
-
-    }
-
     public virtual void Interact()
     {
 
@@ -20,5 +15,10 @@ public class InteractableObject : MonoBehaviour
     public virtual void DoAction()
     {
 
+    }
+
+    protected void SomeStart()
+    {
+        operationsLeft = operationsLimit;
     }
 }

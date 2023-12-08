@@ -23,22 +23,22 @@ public class PlayerBehaviour : MonoBehaviour
 
     void Update()
     {
-        LookLogic();
-        TryPickUp();
-        TryThrow();
-        TryInteract();
-        TryDoAction();
+        LookLogic(); // проверка взгляда на объекты
+        TryPickUp(); // поднятие расходников
+        TryThrow(); // убрать из рук расходник
+        TryInteract(); // нажатие F
+        TryDoAction(); // нажатие E
     }
-
+    
     private void LookLogic()
     {
         RaycastHit hit;
 
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, lookRange) && hit.collider.gameObject.CompareTag("Raycastable"))
         {
-            if (hit.collider.gameObject.GetComponent<ConsumableObject>())
+            if (hit.collider.gameObject.GetComponentInParent<ConsumableObject>()) // если смотрим на расходник
             {
-                ConsumableObject cob = hit.collider.gameObject.GetComponent<ConsumableObject>();
+                ConsumableObject cob = hit.collider.gameObject.GetComponentInParent<ConsumableObject>();
 
                 lookObject = cob.gameObject;
                 lookObjectIsConsume = true;
@@ -46,11 +46,11 @@ public class PlayerBehaviour : MonoBehaviour
                 string cobName = GameManager.GetConsumeName(cob.GetConsumInfo());
 
                 uic.SetLookItemInfo(cobName);
-                if (!handItem) uic.SetInteractHintVisibility(true);
-                else uic.SetInteractHintVisibility(false);
+                if (!handItem) uic.SetActionHintVisibility(true);
+                else uic.SetActionHintVisibility(false);
             }
 
-            else if (hit.collider.gameObject.GetComponent<InteractableObject>())
+            else if (hit.collider.gameObject.GetComponent<InteractableObject>()) // если смотрим на интерактивный объект
             {
                 InteractableObject itob = hit.collider.gameObject.GetComponent<InteractableObject>();
 
@@ -60,6 +60,19 @@ public class PlayerBehaviour : MonoBehaviour
                 uic.SetLookItemInfo("Спаунер");
                 uic.SetInteractHintVisibility(true);
                 uic.SetActionHintVisibility(true);
+                uic.SetInfoHintVisibility(true);
+            }
+
+            else if (hit.collider.gameObject.GetComponentInParent<InteractableObject>()) // если смотрим на интерактивный объект
+            {
+                InteractableObject itob = hit.collider.gameObject.GetComponentInParent<InteractableObject>();
+
+                lookObject = itob.gameObject;
+                lookObjectIsConsume = false;
+
+                uic.SetLookItemInfo("Мииииф");
+                uic.SetInteractHintVisibility(true);
+                uic.SetInfoHintVisibility(true);
             }
         }
 
@@ -69,6 +82,7 @@ public class PlayerBehaviour : MonoBehaviour
             uic.SetLookItemInfo("");
             uic.SetInteractHintVisibility(false);
             uic.SetActionHintVisibility(false);
+            uic.SetInfoHintVisibility(false);
         }
     }
 
@@ -83,6 +97,13 @@ public class PlayerBehaviour : MonoBehaviour
                 itob = lookObject.GetComponent<Spawner>();
 
                 itob.Interact();
+            }
+
+            else if (lookObject.GetComponent<MIF>())
+            {
+                itob = lookObject.GetComponent<MIF>();
+
+                uic.ShowMIFWindow((MIF) itob);
             }
         }
     }
@@ -112,12 +133,21 @@ public class PlayerBehaviour : MonoBehaviour
             handItem.transform.SetParent(Hand);
             handItem.transform.localPosition = Vector3.zero;
             handItem.transform.localRotation = Quaternion.identity;
+            handItem.transform.Rotate(0, 180, 0);
 
             string cobName = GameManager.GetConsumeName(handItem.GetConsumInfo());
 
-            uic.SetHandItemInfo(cobName);
+            uic.SetHandItemInfo(cobName, GameManager.ChargeLevelToName(handItem.GetCharge()));
             uic.SetThrowHintVisibility(true);
         }
+    }
+
+    public void UpdateHandItemInfo()
+    {
+        string name = GameManager.GetConsumeName(handItem.GetConsumInfo());
+        string level = GameManager.ChargeLevelToName(handItem.GetCharge());
+
+        uic.SetHandItemInfo(name, level);
     }
 
     private void TryThrow()
@@ -129,7 +159,7 @@ public class PlayerBehaviour : MonoBehaviour
 
             handItem = null;
 
-            uic.SetHandItemInfo("");
+            uic.SetHandItemInfo("", "");
             uic.SetThrowHintVisibility(false);
         }
     }
