@@ -60,6 +60,7 @@ public class PlayerMovement : MonoBehaviour
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
+        move = move.magnitude > 1 ? move.normalized : move;
 
         controller.Move(move * speed * Time.deltaTime);
 
