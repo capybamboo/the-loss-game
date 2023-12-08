@@ -16,6 +16,7 @@ public class PauseMenu : MonoBehaviour
 
     [SerializeField] private GameObject _inventory;
     [SerializeField] private GameObject _player;
+    [SerializeField] private GameObject _camera;
     [SerializeField] private List<UIObject> _playerUIObjects = new();
 
     [SerializeField] private Dropdown _resolutionDropdown;
@@ -253,7 +254,7 @@ public class PauseMenu : MonoBehaviour
         {
             _mouseSpeed = PlayerPrefs.GetFloat("MouseSpeed");
 
-            _sensitivity.value = PlayerPrefs.GetFloat("MouseSpeed");
+            _sensitivity.value = _mouseSpeed;
         }
         else
         {
@@ -287,6 +288,7 @@ public class PauseMenu : MonoBehaviour
     public void OnSensitivityScrollbarChanged(float value)
     {
         _mouseSpeed = value;
+        _camera.GetComponent<MouseLook>().mouseSensivity = value * 500;
     }
 
     public void OnTargetFrameRateChanged(string value)
