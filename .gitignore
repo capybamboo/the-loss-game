@@ -73,3 +73,4 @@ crashlytics-build.properties
 *.vsconfig
 *.DS_Store
 **.idea/
+*.log
