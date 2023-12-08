@@ -13,7 +13,8 @@ public class PlayerBehaviour : MonoBehaviour
     [Space]
     private Transform Hand;
     [SerializeField] private ConsumableObject handItem;
-    [SerializeField] private ConsumableObject lookItem;
+    [SerializeField] private GameObject lookObject;
+    private bool lookObjectIsConsume;
 
     void Start()
     {
@@ -22,52 +23,131 @@ public class PlayerBehaviour : MonoBehaviour
 
     void Update()
     {
-        LookLogic();
-        TryPickUp();
-        TryThrow();
+        LookLogic(); // проверка взгляда на объекты
+        TryPickUp(); // поднятие расходников
+        TryThrow(); // убрать из рук расходник
+        TryInteract(); // нажатие F
+        TryDoAction(); // нажатие E
     }
-
+    
     private void LookLogic()
     {
         RaycastHit hit;
 
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, lookRange) && hit.collider.gameObject.CompareTag("Raycastable"))
         {
-            if (hit.collider.gameObject.GetComponent<ConsumableObject>())
+            if (hit.collider.gameObject.GetComponentInParent<ConsumableObject>()) // если смотрим на расходник
             {
-                ConsumableObject cob = hit.collider.gameObject.GetComponent<ConsumableObject>();
-                lookItem = cob;
+                ConsumableObject cob = hit.collider.gameObject.GetComponentInParent<ConsumableObject>();
+
+                lookObject = cob.gameObject;
+                lookObjectIsConsume = true;
 
                 string cobName = GameManager.GetConsumeName(cob.GetConsumInfo());
 
                 uic.SetLookItemInfo(cobName);
-                if (!handItem) uic.SetPickupHintVisibility(true);
+                if (!handItem) uic.SetActionHintVisibility(true);
+                else uic.SetActionHintVisibility(false);
+            }
+
+            else if (hit.collider.gameObject.GetComponent<InteractableObject>()) // если смотрим на интерактивный объект
+            {
+                InteractableObject itob = hit.collider.gameObject.GetComponent<InteractableObject>();
+
+                lookObject = itob.gameObject;
+                lookObjectIsConsume = false;
+
+                uic.SetLookItemInfo("Спаунер");
+                uic.SetInteractHintVisibility(true);
+                uic.SetActionHintVisibility(true);
+                uic.SetInfoHintVisibility(true);
+            }
+
+            else if (hit.collider.gameObject.GetComponentInParent<InteractableObject>()) // если смотрим на интерактивный объект
+            {
+                InteractableObject itob = hit.collider.gameObject.GetComponentInParent<InteractableObject>();
+
+                lookObject = itob.gameObject;
+                lookObjectIsConsume = false;
+
+                uic.SetLookItemInfo("Мииииф");
+                uic.SetInteractHintVisibility(true);
+                uic.SetInfoHintVisibility(true);
             }
         }
 
         else
         {
-            lookItem = null;
+            lookObject = null;
             uic.SetLookItemInfo("");
-            uic.SetPickupHintVisibility(false);
+            uic.SetInteractHintVisibility(false);
+            uic.SetActionHintVisibility(false);
+            uic.SetInfoHintVisibility(false);
+        }
+    }
+
+    private void TryInteract()
+    {
+        if (lookObject && !lookObjectIsConsume && Input.GetKeyDown(KeyCode.F))
+        {
+            InteractableObject itob;
+
+            if (lookObject.GetComponent<Spawner>())
+            {
+                itob = lookObject.GetComponent<Spawner>();
+
+                itob.Interact();
+            }
+
+            else if (lookObject.GetComponent<MIF>())
+            {
+                itob = lookObject.GetComponent<MIF>();
+
+                uic.ShowMIFWindow((MIF) itob);
+            }
+        }
+    }
+
+    private void TryDoAction()
+    {
+        if (lookObject && !lookObjectIsConsume && Input.GetKeyDown(KeyCode.E))
+        {
+            InteractableObject itob;
+
+            if (lookObject.GetComponent<Spawner>())
+            {
+                itob = lookObject.GetComponent<Spawner>();
+
+                itob.DoAction();
+            }
         }
     }
 
     private void TryPickUp()
     {
-        if (lookItem && !handItem && Input.GetKeyDown(KeyCode.E))
+        if (lookObject && lookObjectIsConsume && !handItem && Input.GetKeyDown(KeyCode.E))
         {
-            handItem = lookItem;
+            handItem = lookObject.GetComponent<ConsumableObject>();
 
-            handItem.SwitchGravity(false);
+            handItem.SwitchKinematic(false);
             handItem.transform.SetParent(Hand);
             handItem.transform.localPosition = Vector3.zero;
+            handItem.transform.localRotation = Quaternion.identity;
+            handItem.transform.Rotate(0, 180, 0);
 
             string cobName = GameManager.GetConsumeName(handItem.GetConsumInfo());
 
-            uic.SetHandItemInfo(cobName);
+            uic.SetHandItemInfo(cobName, GameManager.ChargeLevelToName(handItem.GetCharge()));
             uic.SetThrowHintVisibility(true);
         }
+    }
+
+    public void UpdateHandItemInfo()
+    {
+        string name = GameManager.GetConsumeName(handItem.GetConsumInfo());
+        string level = GameManager.ChargeLevelToName(handItem.GetCharge());
+
+        uic.SetHandItemInfo(name, level);
     }
 
     private void TryThrow()
@@ -75,11 +155,11 @@ public class PlayerBehaviour : MonoBehaviour
         if (handItem && Input.GetKeyDown(KeyCode.Q))
         {
             handItem.transform.SetParent(null);
-            handItem.SwitchGravity(true);
+            handItem.SwitchKinematic(true);
 
             handItem = null;
 
-            uic.SetHandItemInfo("");
+            uic.SetHandItemInfo("", "");
             uic.SetThrowHintVisibility(false);
         }
     }
