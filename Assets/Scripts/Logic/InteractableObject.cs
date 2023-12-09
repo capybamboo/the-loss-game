@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class InteractableObject : MonoBehaviour
 {
-    [SerializeField] protected int operationsLimit;
-    [SerializeField] protected int operationsLeft;
+    public int operationsLimit;
+    public int operationsLeft;
+
+    protected GameManager gm;
 
     public virtual void Interact()
     {
@@ -20,5 +22,14 @@ public class InteractableObject : MonoBehaviour
     protected void SomeStart()
     {
         operationsLeft = operationsLimit;
+        gm = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
+}
+
+public enum InteractableType
+{
+    Mif1,
+    Mif2,
+    Spawner,
+    Receiver
 }

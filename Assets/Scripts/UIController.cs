@@ -25,6 +25,15 @@ public class UIController : MonoBehaviour
     [SerializeField] private Dropdown dropdownOperationsMif1;
     [SerializeField] private Dropdown dropdownOperationsMif2;
 
+    [Header("Info window")]
+    [SerializeField] private GameObject infoPanel;
+    [SerializeField] private Text operations;
+    [SerializeField] private Text requiredItem;
+    [SerializeField] private GameObject mif1Info;
+    [SerializeField] private GameObject mif2Info;
+    [SerializeField] private GameObject spawnerInfo;
+    [SerializeField] private GameObject receiverInfo;
+
     private void Start()
     {
         gm = GetComponent<GameManager>();
@@ -100,5 +109,70 @@ public class UIController : MonoBehaviour
         panel.SetActive(false);
 
         gm.currentMif = null;
+    }
+
+    public void ShowMif1Info(InteractableObject itob)
+    {
+        infoPanel.SetActive(true);
+
+        spawnerInfo.SetActive(false);
+        receiverInfo.SetActive(false);
+        mif2Info.SetActive(false);
+        mif1Info.SetActive(true);
+        requiredItem.gameObject.SetActive(false);
+
+        operations.text = $"Действий: {itob.operationsLeft}/{itob.operationsLimit}";
+    }
+
+    public void ShowMif2Info(InteractableObject itob)
+    {
+        infoPanel.SetActive(true);
+
+        spawnerInfo.SetActive(false);
+        receiverInfo.SetActive(false);
+        mif2Info.SetActive(true);
+        mif1Info.SetActive(false);
+        requiredItem.gameObject.SetActive(false);
+
+        operations.text = $"Действий: {itob.operationsLeft}/{itob.operationsLimit}";
+    }
+
+    public void ShowSpawnerInfo(InteractableObject itob)
+    {
+        infoPanel.SetActive(true);
+
+        spawnerInfo.SetActive(true);
+        receiverInfo.SetActive(false);
+        mif2Info.SetActive(false);
+        mif1Info.SetActive(false);
+        requiredItem.gameObject.SetActive(false);
+
+        operations.text = $"Действий: {itob.operationsLeft}/{itob.operationsLimit}";
+    }
+
+    public void ShowReceiverInfo(InteractableObject itob)
+    {
+        infoPanel.SetActive(true);
+
+        spawnerInfo.SetActive(false);
+        receiverInfo.SetActive(true);
+        mif2Info.SetActive(false);
+        mif1Info.SetActive(false);
+
+        Receiver receiver = (Receiver)itob;
+        ChargeLevel chargeLevel = receiver.requiredChargeLevel;
+        KeyValuePair<ConsumType, int> info = new KeyValuePair<ConsumType, int>(receiver.requiredType, receiver.requiredLevel);
+
+        requiredItem.gameObject.SetActive(true);
+        requiredItem.text = $"Требуемый объект:\n{GameManager.ChargeLevelToName(chargeLevel)} {GameManager.GetConsumeName(info)}";
+
+        operations.text = "";
+    }
+
+    public void HideInfo()
+    {
+        infoPanel.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        gm.pm.UnlockMovement();
     }
 }

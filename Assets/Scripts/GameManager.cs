@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     private UIController uic;
     public PlayerMovement pm;
+    public PlayerBehaviour pb;
 
     public MIF currentMif;
 
@@ -50,7 +51,7 @@ public class GameManager : MonoBehaviour
     {
         if (level == ChargeLevel.Negative) return "Отрицательный";
         else if (level == ChargeLevel.Neutral) return "Нейтральный";
-        else return "Положительный";
+        else return "ПолоZHительный";
     }
 
     public void ChangeMifTrigger(int val)

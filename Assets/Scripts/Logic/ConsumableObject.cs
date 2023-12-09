@@ -21,7 +21,7 @@ public class ConsumableObject : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        pb = gm.pm.GetComponent<PlayerBehaviour>();
+        pb = gm.pb;
     }
 
     private void Update()
