@@ -15,6 +15,8 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] private ConsumableObject handItem;
     [SerializeField] private GameObject lookObject;
     private bool lookObjectIsConsume;
+    private bool lookObjectIsInteractable;
+    private InteractableType lookInteractableType;
 
     void Start()
     {
@@ -28,6 +30,7 @@ public class PlayerBehaviour : MonoBehaviour
         TryThrow(); // убрать из рук расходник
         TryInteract(); // нажатие F
         TryDoAction(); // нажатие E
+        TrySeeInfo(); // нажатие I
     }
     
     private void LookLogic()
@@ -56,9 +59,21 @@ public class PlayerBehaviour : MonoBehaviour
 
                 lookObject = itob.gameObject;
                 lookObjectIsConsume = false;
+                lookObjectIsInteractable = true;
 
-                uic.SetLookItemInfo("Спаунер");
-                uic.SetInteractHintVisibility(true);
+                if (itob.GetComponent<Spawner>())
+                {
+                    lookInteractableType = InteractableType.Spawner;
+                    uic.SetInteractHintVisibility(true);
+                    uic.SetLookItemInfo("Спаунер");
+                }
+
+                else if (itob.GetComponent<Receiver>())
+                {
+                    lookInteractableType = InteractableType.Receiver;
+                    uic.SetLookItemInfo("Энергоприёмник");
+                }
+
                 uic.SetActionHintVisibility(true);
                 uic.SetInfoHintVisibility(true);
             }
@@ -69,8 +84,12 @@ public class PlayerBehaviour : MonoBehaviour
 
                 lookObject = itob.gameObject;
                 lookObjectIsConsume = false;
+                lookObjectIsInteractable = true;
 
-                uic.SetLookItemInfo("Мииииф");
+                if (((MIF)itob).GetMifType() == MifType.Mif1) lookInteractableType = InteractableType.Mif1;
+                else lookInteractableType = InteractableType.Mif2;
+
+                uic.SetLookItemInfo("Миф");
                 uic.SetInteractHintVisibility(true);
                 uic.SetInfoHintVisibility(true);
             }
@@ -83,6 +102,20 @@ public class PlayerBehaviour : MonoBehaviour
             uic.SetInteractHintVisibility(false);
             uic.SetActionHintVisibility(false);
             uic.SetInfoHintVisibility(false);
+        }
+    }
+
+    private void TrySeeInfo()
+    {
+        if (lookObject && lookObjectIsInteractable && Input.GetKeyDown(KeyCode.I))
+        {
+            gm.pm.LockMovement();
+            Cursor.lockState = CursorLockMode.Confined;
+
+            if (lookInteractableType == InteractableType.Mif1) uic.ShowMif1Info(lookObject.GetComponent<InteractableObject>());
+            else if (lookInteractableType == InteractableType.Mif2) uic.ShowMif2Info(lookObject.GetComponent<InteractableObject>());
+            else if (lookInteractableType == InteractableType.Spawner) uic.ShowSpawnerInfo(lookObject.GetComponent<InteractableObject>());
+            else if (lookInteractableType == InteractableType.Receiver) uic.ShowReceiverInfo(lookObject.GetComponent<InteractableObject>());
         }
     }
 
@@ -120,6 +153,13 @@ public class PlayerBehaviour : MonoBehaviour
 
                 itob.DoAction();
             }
+
+            else if (lookObject.GetComponent<Receiver>() && handItem)
+            {
+                Receiver receiver = lookObject.GetComponent<Receiver>();
+
+                receiver.PutRequest(handItem);
+            }
         }
     }
 
@@ -152,15 +192,16 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void TryThrow()
     {
-        if (handItem && Input.GetKeyDown(KeyCode.Q))
-        {
-            handItem.transform.SetParent(null);
-            handItem.SwitchKinematic(true);
+        if (handItem && Input.GetKeyDown(KeyCode.Q)) ResetHandItem();
+    }
 
-            handItem = null;
+    public void ResetHandItem()
+    {
+        handItem.transform.SetParent(null);
+        handItem.SwitchKinematic(true);
+        handItem = null;
 
-            uic.SetHandItemInfo("", "");
-            uic.SetThrowHintVisibility(false);
-        }
+        uic.SetHandItemInfo("", "");
+        uic.SetThrowHintVisibility(false);
     }
 }
