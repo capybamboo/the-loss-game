@@ -46,7 +46,10 @@ public class PlayerMovement : MonoBehaviour
         blockMovement = false;
         ml.blockCam = false;
     }
-
+    public bool GetMovementStatus()
+    {
+	return blockMovement;
+    }
     private void DoMovement()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
