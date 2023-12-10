@@ -10,12 +10,21 @@ public class GameManager : MonoBehaviour
     private UIController uic;
     public PlayerMovement pm;
     public PlayerBehaviour pb;
+    public AudioManager aum;
 
     public MIF currentMif;
+
+    [SerializeField] private GameObject guide;
 
     private void Start()
     {
         uic = GetComponent<UIController>();
+        aum = GetComponent<AudioManager>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.G)) guide.SetActive(false);
     }
 
     public static string GetConsumeName(KeyValuePair<ConsumType, int> info)
@@ -51,7 +60,7 @@ public class GameManager : MonoBehaviour
     {
         if (level == ChargeLevel.Negative) return "Отрицательный";
         else if (level == ChargeLevel.Neutral) return "Нейтральный";
-        else return "ПолоZHительный";
+        else return "Положительный";
     }
 
     public void ChangeMifTrigger(int val)

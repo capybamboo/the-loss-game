@@ -131,6 +131,8 @@ public class PlayerBehaviour : MonoBehaviour
             else if (consumType == ConsumType.HoneyCell) UpgradeJump(consumLevel);
 
             ResetHandItemAndDestroy();
+
+            gm.aum.PlayEatSound();
         }
     }
 

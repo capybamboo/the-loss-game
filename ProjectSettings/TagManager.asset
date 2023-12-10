@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Raycastable
   - dialogable
+  - exit game
   layers:
   - Default
   - TransparentFX
