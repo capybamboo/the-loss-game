@@ -22,6 +22,8 @@ public class MIFTwo : MIF
 
         currentProduct = cob;
 
+        gm.aum.PlayMifSound();
+
         return true;
     }
 }

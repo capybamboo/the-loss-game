@@ -175,4 +175,9 @@ public class UIController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         gm.pm.UnlockMovement();
     }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
 }

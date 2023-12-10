@@ -10,6 +10,7 @@ public class Receiver : InteractableObject
     public ChargeLevel requiredChargeLevel = ChargeLevel.Neutral;
 
     [Space]
+    [SerializeField] private GameObject particleObject;
     [SerializeField] private Transform itemPlace;
     [SerializeField] private ActionObject actionObject;
     public bool activated = false;
@@ -47,5 +48,8 @@ public class Receiver : InteractableObject
         actionObject.Activate();
 
         activated = true;
+        particleObject.SetActive(true);
+
+        gm.aum.PlayReceiverSound();
     }
 }

@@ -8,6 +8,7 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] private UIController uic;
 
     [SerializeField] private float lookRange = 100f;
+    [SerializeField] private float currentLookRange;
     [SerializeField] private Camera cam;
 
     [Space]
@@ -17,6 +18,10 @@ public class PlayerBehaviour : MonoBehaviour
     private bool lookObjectIsConsume;
     private bool lookObjectIsInteractable;
     private InteractableType lookInteractableType;
+
+    [Space]
+    private float jumpUpgradeTime;
+    private float handUpgradeTime;
 
     void Start()
     {
@@ -31,13 +36,20 @@ public class PlayerBehaviour : MonoBehaviour
         TryInteract(); // нажатие F
         TryDoAction(); // нажатие E
         TrySeeInfo(); // нажатие I
+        TryEatConsume(); // нажатие R
+
+        if (jumpUpgradeTime > 0) jumpUpgradeTime -= Time.deltaTime;
+        else gm.pm.ResetJumpHeight();
+
+        if (handUpgradeTime > 0) handUpgradeTime -= Time.deltaTime;
+        else ResetLookRange();
     }
     
     private void LookLogic()
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, lookRange) && hit.collider.gameObject.CompareTag("Raycastable"))
+        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, currentLookRange) && hit.collider.gameObject.CompareTag("Raycastable"))
         {
             if (hit.collider.gameObject.GetComponentInParent<ConsumableObject>()) // если смотрим на расходник
             {
@@ -102,6 +114,25 @@ public class PlayerBehaviour : MonoBehaviour
             uic.SetInteractHintVisibility(false);
             uic.SetActionHintVisibility(false);
             uic.SetInfoHintVisibility(false);
+        }
+    }
+
+    private void TryEatConsume()
+    {
+        if (handItem && Input.GetKeyDown(KeyCode.R))
+        {
+            ChargeLevel chargeLevel = handItem.GetCharge();
+            ConsumType consumType = handItem.GetConsumInfo().Key;
+            int consumLevel = handItem.GetConsumInfo().Value;
+
+            if (chargeLevel != ChargeLevel.Negative) return;
+
+            if (consumType == ConsumType.Battery) UpgradeHand(consumLevel);
+            else if (consumType == ConsumType.HoneyCell) UpgradeJump(consumLevel);
+
+            ResetHandItemAndDestroy();
+
+            gm.aum.PlayEatSound();
         }
     }
 
@@ -195,11 +226,57 @@ public class PlayerBehaviour : MonoBehaviour
         if (handItem && Input.GetKeyDown(KeyCode.Q)) ResetHandItem();
     }
 
+    public void ChangeLookRange(float val)
+    {
+        currentLookRange = val;
+    }
+
+    public void ResetLookRange()
+    {
+        currentLookRange = lookRange;
+    }
+
+    public void UpgradeJump(int level)
+    {
+        int multi = 6;
+
+        if (level == 1) jumpUpgradeTime = 10f;
+        else if (level == 2) jumpUpgradeTime = 20f;
+        else if (level == 3) jumpUpgradeTime = 30f;
+
+        gm.pm.ChangeJumpHeight(multi);
+        
+    }
+
+    public void UpgradeHand(int level)
+    {
+        int multi = 12;
+
+        if (level == 1) handUpgradeTime = 10f;
+        else if (level == 2) handUpgradeTime = 20f;
+        else if (level == 3) handUpgradeTime = 30f;
+
+        ChangeLookRange(multi);
+    }
+
     public void ResetHandItem()
     {
         handItem.transform.SetParent(null);
         handItem.SwitchKinematic(true);
         handItem = null;
+
+        uic.SetHandItemInfo("", "");
+        uic.SetThrowHintVisibility(false);
+    }
+
+    public void ResetHandItemAndDestroy()
+    {
+        handItem.transform.SetParent(null);
+        handItem.SwitchKinematic(true);
+        GameObject o = handItem.gameObject;
+        handItem = null;
+
+        Destroy(o);
 
         uic.SetHandItemInfo("", "");
         uic.SetThrowHintVisibility(false);

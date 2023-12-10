@@ -11,28 +11,44 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = 9.81f;
 
     [Space]
+    [SerializeField] private float jumpHeight = 3f;
+    [SerializeField] private float currentJumpHeight;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundDistance = 0.4f;
     [SerializeField] private LayerMask groundMask;
 
     private Vector3 velocity;
-    bool isGrounded;
+    [SerializeField] private bool isGrounded;
 
     private Rigidbody rb;
 
     public float speed;
 
-    private bool blockMovement;
+    [SerializeField] private bool blockMovement;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         controller = GetComponent<CharacterController>();
+
+        ResetJumpHeight();
     }
 
     void Update()
     {
         if (!blockMovement) DoMovement();
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded) velocity.y = Mathf.Sqrt(currentJumpHeight * 2f * gravity);
+    }
+
+    public void ChangeJumpHeight(float val)
+    {
+        currentJumpHeight = val;
+    }
+
+    public void ResetJumpHeight()
+    {
+        currentJumpHeight = jumpHeight;
     }
 
     public void LockMovement()

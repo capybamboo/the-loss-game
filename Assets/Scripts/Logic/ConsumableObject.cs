@@ -24,12 +24,6 @@ public class ConsumableObject : MonoBehaviour
         pb = gm.pb;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) LevelUp();
-        if (Input.GetKeyDown(KeyCode.Alpha2)) LevelDown();
-    }
-
     public KeyValuePair<ConsumType, int> GetConsumInfo()
     {
         return new KeyValuePair<ConsumType, int>(consumType, consumLevel);

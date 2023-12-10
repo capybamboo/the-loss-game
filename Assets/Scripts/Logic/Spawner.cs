@@ -30,6 +30,8 @@ public class Spawner : InteractableObject
         else product = Instantiate(honeyPrefab, spawnPoint.position, Quaternion.identity);
 
         operationsLeft--;
+
+        gm.aum.PlaySpawnSound();
     }
 
     public override void Interact()
