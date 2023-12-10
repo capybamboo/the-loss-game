@@ -54,13 +54,13 @@ public class Inventory : MonoBehaviour
         {
             MoveObject();
         }
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.P))
         {
             if (!background.activeSelf && _player.GetComponent<PlayerMovement>().GetMovementStatus())
             {
                 _player.GetComponent<PlayerMovement>().UnlockMovement();
                 Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
+                //Cursor.visible = true;
 
                 background.SetActive(true);
             }
@@ -69,7 +69,7 @@ public class Inventory : MonoBehaviour
                 _player.GetComponent<PlayerMovement>().LockMovement();
 
                 Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                //Cursor.visible = false;
 
                 background.SetActive(false);
             }
